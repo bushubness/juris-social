@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#002395" />
+  <title>Juris Social — Cour de cassation</title>
+  <link rel="manifest" href="manifest.json" />
+  <style>
+    :root {
+      --blue:      #002395;
+      --blue-mid:  #0035cc;
+      --blue-soft: #e8ecf8;
+      --blue-line: #c5cef2;
+      --red:       #ED2939;
+      --black:     #0d0d0d;
+      --grey-dk:   #444;
+      --grey-md:   #888;
+      --grey-lt:   #f4f5f9;
+      --white:     #ffffff;
+      --radius:    10px;
+      --shadow:    0 1px 4px rgba(0,35,149,.10);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; -webkit-text-size-adjust: 100%; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--grey-lt);
+      color: var(--black);
+      min-height: 100dvh;
+    }
+    header {
+      position: sticky; top: 0; z-index: 100;
+      background: var(--blue);
+      color: var(--white);
+      padding: 0 16px;
+      height: 56px;
+      display: flex; align-items: center; justify-content: space-between;
+      box-shadow: 0 2px 8px rgba(0,0,0,.25);
+    }
+    .header-brand { display: flex; align-items: center; gap: 10px; }
+    .header-flag {
+      width: 26px; height: 18px;
+      background: linear-gradient(to right, #002395 33.33%, #fff 33.33% 66.66%, #ED2939 66.66%);
+      border-radius: 2px; flex-shrink: 0;
+    }
+    .header-title { font-size: 15px; font-weight: 700; letter-spacing: .3px; line-height: 1.1; }
+    .header-sub { font-size: 10px; font-weight: 400; opacity: .75; letter-spacing: .5px; text-transform: uppercase; }
+    .header-count { font-size: 12px; background: rgba(255,255,255,.18); border-radius: 20px; padding: 3px 10px; font-weight: 600; }
+    .search-wrap { padding: 12px 16px 4px; position: sticky; top: 56px; z-index: 99; background: var(--grey-lt); }
+    .search-input { width: 100%; border: 1.5px solid var(--blue-line); border-radius: 8px; padding: 9px 14px; font-size: 14px; color: var(--black); background: var(--white); outline: none; transition: border-color .15s; }
+    .search-input:focus { border-color: var(--blue-mid); }
+    .search-input::placeholder { color: var(--grey-md); }
+    #feed { padding: 8px 16px 80px; display: flex; flex-direction: column; gap: 8px; }
+    .card { background: var(--white); border-radius: var(--radius); border: 1px solid #e0e4f0; box-shadow: var(--shadow); padding: 14px 16px 12px; cursor: pointer; transition: border-color .12s, box-shadow .12s, transform .1s; -webkit-tap-highlight-color: transparent; user-select: none; }
+    .card:hover { border-color: var(--blue-mid); box-shadow: 0 3px 12px rgba(0,35,149,.15); }
+    .card:active { transform: scale(.985); }
+    .card-meta { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; flex-wrap: wrap; }
+    .badge { font-size: 10px; font-weight: 700; letter-spacing: .6px; text-transform: uppercase; padding: 2px 7px; border-radius: 4px; }
+    .badge-chambre { background: var(--blue-soft); color: var(--blue); }
+    .badge-new { background: #fff3f4; color: var(--red); }
+    .card-date { font-size: 11px; color: var(--grey-md); margin-left: auto; }
+    .card-ref { font-size: 11px; color: var(--grey-md); }
+    .card-title { font-size: 14px; font-weight: 600; color: var(--black); line-height: 1.4; margin-bottom: 6px; }
+    .card-preview { font-size: 13px; color: var(--grey-dk); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .card-footer { margin-top: 10px; display: flex; align-items: center; justify-content: space-between; }
+    .card-decision-tag { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 4px; }
+    .tag-cassation { background: #fff0f0; color: #c0392b; }
+    .tag-rejet { background: #f0fff4; color: #1a7a3c; }
+    .tag-autre { background: var(--blue-soft); color: var(--blue); }
+    .card-arrow { color: var(--blue-line); font-size: 16px; line-height: 1; }
+    .empty { text-align: center; padding: 60px 24px; color: var(--grey-md); font-size: 14px; line-height: 1.7; }
+    .empty strong { color: var(--grey-dk); display: block; font-size: 16px; margin-bottom: 6px; }
+    #detail { display: none; position: fixed; inset: 0; z-index: 200; background: var(--white); overflow-y: auto; -webkit-overflow-scrolling: touch; }
+    #detail.open { display: block; }
+    .detail-header { position: sticky; top: 0; z-index: 10; background: var(--blue); padding: 0 16px; height: 56px; display: flex; align-items: center; gap: 12px; }
+    .btn-back { background: none; border: none; cursor: pointer; color: var(--white); font-size: 22px; line-height: 1; padding: 4px; border-radius: 6px; -webkit-tap-highlight-color: transparent; display: flex; align-items: center; }
+    .btn-back:hover { background: rgba(255,255,255,.15); }
+    .detail-header-label { color: rgba(255,255,255,.85); font-size: 14px; font-weight: 600; }
+    .detail-body { padding: 20px 16px 60px; }
+    .detail-meta-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 14px; }
+    .detail-title { font-size: 17px; font-weight: 700; line-height: 1.4; color: var(--black); margin-bottom: 20px; padding-bottom: 16px; border-bottom: 2px solid var(--blue-soft); }
+    .section { margin-bottom: 18px; }
+    .section-label { font-size: 10px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; color: var(--blue); margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+    .section-label::after { content: ''; flex: 1; height: 1px; background: var(--blue-line); }
+    .section-text { font-size: 14px; line-height: 1.65; color: var(--grey-dk); }
+    .decision-box { background: var(--blue-soft); border-left: 3px solid var(--blue); border-radius: 0 var(--radius) var(--radius) 0; padding: 14px 16px; }
+    .decision-box .section-text { color: var(--black); font-weight: 500; }
+    .source-link { display: inline-flex; align-items: center; gap: 6px; margin-top: 24px; color: var(--blue-mid); font-size: 13px; font-weight: 600; text-decoration: none; padding: 10px 16px; border: 1.5px solid var(--blue-mid); border-radius: 8px; transition: background .12s; }
+    .source-link:hover { background: var(--blue-soft); }
+    #scrollTop { position: fixed; bottom: 24px; right: 20px; z-index: 150; background: var(--blue); color: var(--white); border: none; border-radius: 50%; width: 44px; height: 44px; font-size: 20px; display: none; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 12px rgba(0,35,149,.35); }
+    #scrollTop.vis { display: flex; }
+    @media (min-width: 600px) {
+      #feed { max-width: 640px; margin: 0 auto; }
+      .search-wrap { max-width: 640px; margin: 0 auto; }
+    }
+  </style>
+</head>
+<body>
+<header>
+  <div class="header-brand">
+    <div class="header-flag" aria-hidden="true"></div>
+    <div>
+      <div class="header-title">Juris Social</div>
+      <div class="header-sub">Cour de cassation · Ch. sociale</div>
+    </div>
+  </div>
+  <div class="header-count" id="countLabel">—</div>
+</header>
+<div class="search-wrap">
+  <input class="search-input" type="search" id="searchInput" placeholder="Rechercher : mot-clé, n° de pourvoi, thème…" autocomplete="off" spellcheck="false" />
+</div>
+<main>
+  <div id="feed"><div class="empty"><strong>Chargement…</strong></div></div>
+</main>
+<div id="detail" role="dialog" aria-modal="true" aria-label="Détail de l'arrêt">
+  <div class="detail-header">
+    <button class="btn-back" id="btnBack" aria-label="Retour à la liste">&#8592;</button>
+    <span class="detail-header-label">Fiche arrêt</span>
+  </div>
+  <div class="detail-body" id="detailBody"></div>
+</div>
+<button id="scrollTop" aria-label="Remonter en haut">↑</button>
+<script>
+let allArrêts = [], filteredArrêts = [];
+function fmtDate(iso) {
+  const [y,m,d] = iso.split('-');
+  const months = ['jan.','fév.','mars','avr.','mai','juin','juil.','août','sep.','oct.','nov.','déc.'];
+  return `${parseInt(d)} ${months[parseInt(m)-1]} ${y}`;
+}
+function isNew(iso) { return (Date.now() - new Date(iso)) / 86400000 <= 14; }
+function decisionTag(decision) {
+  const d = decision.toLowerCase();
+  if (d.startsWith('cassation')) return { label: 'Cassation', cls: 'tag-cassation' };
+  if (d.startsWith('rejet')) return { label: 'Rejet', cls: 'tag-rejet' };
+  return { label: 'Décision', cls: 'tag-autre' };
+}
+function highlight(text, query) {
+  if (!query) return text;
+  const re = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, 'gi');
+  return text.replace(re, '<mark style="background:#fef9c3;border-radius:2px;">$1</mark>');
+}
+function renderFeed(arrêts, query = '') {
+  const feed = document.getElementById('feed');
+  document.getElementById('countLabel').textContent = `${arrêts.length} arrêt${arrêts.length > 1 ? 's' : ''}`;
+  if (!arrêts.length) { feed.innerHTML = `<div class="empty"><strong>Aucun résultat</strong>Essayez un autre mot-clé ou numéro de pourvoi.</div>`; return; }
+  feed.innerHTML = arrêts.map((a, i) => {
+    const tag = decisionTag(a.decision);
+    return `<article class="card" data-index="${i}" tabindex="0" role="button" aria-label="${a.titre}">
+      <div class="card-meta"><span class="badge badge-chambre">Ch. sociale</span>${isNew(a.date) ? '<span class="badge badge-new">Nouveau</span>' : ''}<span class="card-date">${fmtDate(a.date)}</span></div>
+      <div class="card-ref">${a.numero_pourvoi}</div>
+      <div class="card-title">${highlight(a.titre, query)}</div>
+      <div class="card-preview">${highlight(a.faits, query)}</div>
+      <div class="card-footer"><span class="card-decision-tag ${tag.cls}">${tag.label}</span><span class="card-arrow">›</span></div>
+    </article>`;
+  }).join('');
+  feed.querySelectorAll('.card').forEach(card => {
+    const open = () => openDetail(filteredArrêts[+card.dataset.index]);
+    card.addEventListener('click', open);
+    card.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') open(); });
+  });
+}
+function openDetail(a) {
+  const tag = decisionTag(a.decision);
+  document.getElementById('detailBody').innerHTML = `
+    <div class="detail-meta-row"><span class="badge badge-chambre">${a.chambre}</span>${isNew(a.date) ? '<span class="badge badge-new">Nouveau</span>' : ''}</div>
+    <div class="detail-meta-row"><span class="card-ref" style="font-size:13px;color:var(--grey-dk);">Pourvoi n° ${a.numero_pourvoi} &nbsp;·&nbsp; ${fmtDate(a.date)}</span></div>
+    <div class="detail-title">${a.titre}</div>
+    <div class="section"><div class="section-label">Faits</div><div class="section-text">${a.faits}</div></div>
+    <div class="section"><div class="section-label">Procédure</div><div class="section-text">${a.procedure}</div></div>
+    <div class="section"><div class="section-label">Moyens</div><div class="section-text">${a.moyens}</div></div>
+    <div class="section"><div class="section-label">Décision</div><div class="decision-box"><div class="section-text">${a.decision}</div></div></div>
+    <a class="source-link" href="${a.url}" target="_blank" rel="noopener">↗ Consulter l'arrêt original</a>`;
+  const detail = document.getElementById('detail');
+  detail.classList.add('open'); detail.scrollTop = 0; detail.focus();
+  history.pushState({ detail: true, id: a.id }, '', `#${a.id}`);
+}
+function closeDetail() { document.getElementById('detail').classList.remove('open'); if (location.hash) history.back(); }
+document.getElementById('btnBack').addEventListener('click', closeDetail);
+document.getElementById('detail').addEventListener('keydown', e => { if (e.key === 'Escape') closeDetail(); });
+window.addEventListener('popstate', e => { if (!e.state?.detail) document.getElementById('detail').classList.remove('open'); });
+let searchTimer;
+document.getElementById('searchInput').addEventListener('input', e => {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => {
+    const q = e.target.value.trim().toLowerCase();
+    filteredArrêts = q ? allArrêts.filter(a => a.titre.toLowerCase().includes(q) || a.faits.toLowerCase().includes(q) || a.decision.toLowerCase().includes(q) || a.numero_pourvoi.toLowerCase().includes(q) || a.moyens.toLowerCase().includes(q)) : [...allArrêts];
+    renderFeed(filteredArrêts, q);
+  }, 200);
+});
+const scrollBtn = document.getElementById('scrollTop');
+window.addEventListener('scroll', () => scrollBtn.classList.toggle('vis', window.scrollY > 300));
+scrollBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+async function loadData() {
+  try {
+    const res = await fetch('data.json');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    allArrêts = data.sort((a, b) => b.date.localeCompare(a.date));
+    filteredArrêts = [...allArrêts];
+    renderFeed(filteredArrêts);
+  } catch(err) {
+    document.getElementById('feed').innerHTML = `<div class="empty"><strong>Impossible de charger les données</strong>Vérifiez que data.json est présent.</div>`;
+    console.error(err);
+  }
+}
+loadData();
+</script>
+</body>
+</html>
