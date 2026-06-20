@@ -25,8 +25,7 @@ jobs:
 
       - name: Récupérer les nouveaux arrêts
         env:
-          PISTE_CLIENT_ID:     ${{ secrets.PISTE_CLIENT_ID }}
-          PISTE_CLIENT_SECRET: ${{ secrets.PISTE_CLIENT_SECRET }}
+          JUDILIBRE_API_KEY: ${{ secrets.JUDILIBRE_API_KEY }}
         run: python fetch_judilibre.py
 
       - name: Sauvegarder data.json
